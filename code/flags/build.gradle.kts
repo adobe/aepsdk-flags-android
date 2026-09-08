@@ -21,6 +21,17 @@ plugins {
 val mavenCoreVersion: String by project
 val mavenEdgeIdentityVersion: String by project
 
+// com.adobe.marketing.mobile:core's POM strictly pins androidx.lifecycle:{common,runtime,
+// viewmodel,livedata,livedata-core} to 2.0.0 (matching the old appcompat:1.0.0 it was built
+// against). The Compose runtime that aep-library adds to the androidTest classpath transitively
+// pulls in androidx.emoji2, whose EmojiCompatInitializer has a compiled reference to
+// androidx.lifecycle.ProcessLifecycleInitializer -- a class that only exists in lifecycle-process
+// 2.4.1+. Pinning the family down to 2.0.0 (matching Core) removes that class entirely and trades
+// one NoClassDefFoundError for another; the family has to go up, not down, to stay compatible with
+// emoji2. Force everything to the version lifecycle-process itself already resolves to elsewhere
+// in this graph, overriding Core's stale strict pin.
+val androidxLifecycleVersion = "2.6.1"
+
 // Flags Engine (in-repo source under com.adobe.marketing.mobile.flags.engine) third-party deps.
 val okHttpVersion: String by project
 val gsonVersion: String by project
@@ -105,6 +116,19 @@ dependencies {
     testImplementation("com.adobe.marketing.mobile:edgeidentity:$mavenEdgeIdentityVersion")
     androidTestImplementation("com.adobe.marketing.mobile:edgeidentity:$mavenEdgeIdentityVersion")
     testImplementation(BuildConstants.Dependencies.MOCKK)
+
+    // Overrides Core's strict androidx.lifecycle:2.0.0 pin (see comment near
+    // androidxLifecycleVersion above) so the whole family resolves consistently.
+    configurations.all {
+        resolutionStrategy.force(
+            "androidx.lifecycle:lifecycle-common:$androidxLifecycleVersion",
+            "androidx.lifecycle:lifecycle-runtime:$androidxLifecycleVersion",
+            "androidx.lifecycle:lifecycle-viewmodel:$androidxLifecycleVersion",
+            "androidx.lifecycle:lifecycle-livedata:$androidxLifecycleVersion",
+            "androidx.lifecycle:lifecycle-livedata-core:$androidxLifecycleVersion",
+            "androidx.lifecycle:lifecycle-process:$androidxLifecycleVersion"
+        )
+    }
 
     // Flags Engine test dependencies (JUnit 5 + supporting libraries).
     testImplementation("org.junit.jupiter:junit-jupiter:$junitJupiterVersion")

@@ -223,8 +223,13 @@ final class FlagFunctionalTestSupport {
      * Reads Edge Identity (or other) XDM shared state via {@link MonitorExtension}.
      *
      * <p>{@link MobileCore#dispatchEvent(Event)} is asynchronous. This method registers an expected
-     * monitor response, dispatches the request, then blocks on {@link #getDispatchedEventsWith}
-     * until {@link MonitorExtension} captures the response event (or times out).
+     * monitor response, dispatches the request, then blocks until {@link MonitorExtension} captures
+     * the response event (or times out).
+     *
+     * <p>Callers (namely {@link #pollXdmSharedStateSet}) rely on a {@code null} return here to
+     * retry, so a miss must not throw: unlike {@link #getDispatchedEventsWith}, which is used
+     * elsewhere for one-shot assertions where a timeout should fail the test immediately, this
+     * awaits without asserting.
      *
      * @return shared state result, or {@code null} when no response is received in time
      */
@@ -242,19 +247,23 @@ final class FlagFunctionalTestSupport {
                         .setEventData(requestData)
                         .build();
 
-        MonitorExtension.setExpectedEvent(
-                FlagFunctionalTestConstants.MonitorEventType.MONITOR,
-                FlagFunctionalTestConstants.MonitorEventSource.SHARED_STATE_RESPONSE,
-                1);
+        final EventSpec responseSpec =
+                new EventSpec(
+                        FlagFunctionalTestConstants.MonitorEventSource.SHARED_STATE_RESPONSE,
+                        FlagFunctionalTestConstants.MonitorEventType.MONITOR);
+        MonitorExtension.setExpectedEvent(responseSpec.type, responseSpec.source, 1);
         MobileCore.dispatchEvent(request);
 
-        final List<Event> responses =
-                getDispatchedEventsWith(
-                        FlagFunctionalTestConstants.MonitorEventType.MONITOR,
-                        FlagFunctionalTestConstants.MonitorEventSource.SHARED_STATE_RESPONSE,
-                        timeoutMs);
+        final ADBCountDownLatch expectedEventLatch =
+                MonitorExtension.getExpectedEvents().get(responseSpec);
+        if (expectedEventLatch != null) {
+            expectedEventLatch.await(timeoutMs, TimeUnit.MILLISECONDS);
+        } else {
+            sleep(WAIT_TIMEOUT_MS);
+        }
 
-        if (responses.isEmpty()) {
+        final List<Event> responses = MonitorExtension.getReceivedEvents().get(responseSpec);
+        if (responses == null || responses.isEmpty()) {
             return null;
         }
 
@@ -361,8 +370,8 @@ final class FlagFunctionalTestSupport {
         return null;
     }
 
-    static final class CustomApplication extends Application {
-        CustomApplication() {}
+    public static final class CustomApplication extends Application {
+        public CustomApplication() {}
     }
 
     private static void resetMobileCore() {

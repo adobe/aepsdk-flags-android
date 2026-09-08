@@ -81,17 +81,23 @@ final class MonitorExtension extends Extension {
     public void wildcardProcessor(final Event event) {
         if (FlagFunctionalTestConstants.MonitorEventType.MONITOR.equalsIgnoreCase(
                 event.getType())) {
+            // Only the request sources are handled here and return early; other MONITOR-type
+            // events (namely the SHARED_STATE_RESPONSE this extension itself dispatches in
+            // response to a request) must fall through to the generic tracking below, or callers
+            // waiting on that response (e.g. getXdmSharedState) would time out every time.
             if (FlagFunctionalTestConstants.MonitorEventSource.SHARED_STATE_REQUEST
                     .equalsIgnoreCase(event.getSource())) {
                 processSharedStateRequest(event);
+                return;
             } else if (FlagFunctionalTestConstants.MonitorEventSource.XDM_SHARED_STATE_REQUEST
                     .equalsIgnoreCase(event.getSource())) {
                 processXdmSharedStateRequest(event);
+                return;
             } else if (FlagFunctionalTestConstants.MonitorEventSource.UNREGISTER.equalsIgnoreCase(
                     event.getSource())) {
                 processUnregisterRequest(event);
+                return;
             }
-            return;
         }
 
         EventSpec eventSpec = new EventSpec(event.getSource(), event.getType());
