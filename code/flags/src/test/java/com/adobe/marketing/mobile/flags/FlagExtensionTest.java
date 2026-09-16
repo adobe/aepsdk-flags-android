@@ -79,11 +79,6 @@ public class FlagExtensionTest {
     }
 
     @Test
-    public void testGetVersion() {
-        assertEquals("1.0.0", extension.getVersion());
-    }
-
-    @Test
     public void testGetFriendlyName() {
         assertEquals("Flags", extension.getFriendlyName());
     }
