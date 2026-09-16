@@ -21,18 +21,8 @@ plugins {
 val mavenCoreVersion: String by project
 val mavenEdgeIdentityVersion: String by project
 
-// com.adobe.marketing.mobile:core's POM strictly pins androidx.lifecycle:{common,runtime,
-// viewmodel,livedata,livedata-core} to 2.0.0 (matching the old appcompat:1.0.0 it was built
-// against). The Compose runtime that aep-library adds to the androidTest classpath transitively
-// pulls in androidx.emoji2, whose EmojiCompatInitializer has a compiled reference to
-// androidx.lifecycle.ProcessLifecycleInitializer -- a class that only exists in lifecycle-process
-// 2.4.1+. Pinning the family down to 2.0.0 (matching Core) removes that class entirely and trades
-// one NoClassDefFoundError for another; the family has to go up, not down, to stay compatible with
-// emoji2. Force everything to the version lifecycle-process itself already resolves to elsewhere
-// in this graph, overriding Core's stale strict pin.
 val androidxLifecycleVersion = "2.6.1"
 
-// Flags Engine (in-repo source under com.adobe.marketing.mobile.flags.engine) third-party deps.
 val okHttpVersion: String by project
 val gsonVersion: String by project
 val slf4jVersion: String by project
@@ -69,7 +59,7 @@ android {
         // Single source of truth for the SDK version: derived at build time from
         // `moduleVersion` in gradle.properties (the value the release workflow bumps).
         // The `-SNAPSHOT` suffix is stripped so the runtime-reported version stays clean.
-        val flagsVersion = (project.property("moduleVersion") as String).removeSuffix("-SNAPSHOT")
+        val flagsVersion = (project.property("moduleVersion") as String)
         buildConfigField("String", "FLAGS_VERSION", "\"$flagsVersion\"")
     }
 }
@@ -82,11 +72,6 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach 
     }
 }
 
-// The Flags Engine source (com.adobe.marketing.mobile.flags.engine) is bundled implementation code
-// imported from a separate project with its own style conventions. It is auto-formatted by
-// Spotless but excluded from Checkstyle's semantic rules (magic numbers, final parameters, etc.)
-// to avoid large, risky hand-edits to production evaluation logic. Revisit if the engine is
-// brought fully in line with the extension's Checkstyle configuration.
 tasks.withType<Checkstyle>().configureEach {
     exclude("**/com/adobe/marketing/mobile/flags/engine/**")
 }
