@@ -59,7 +59,7 @@ android {
         // Single source of truth for the SDK version: derived at build time from
         // `moduleVersion` in gradle.properties (the value the release workflow bumps).
         // The `-SNAPSHOT` suffix is stripped so the runtime-reported version stays clean.
-        val flagsVersion = (project.property("moduleVersion") as String)
+        val flagsVersion = (project.property("moduleVersion") as String).removeSuffix("-SNAPSHOT")
         buildConfigField("String", "FLAGS_VERSION", "\"$flagsVersion\"")
     }
 }
