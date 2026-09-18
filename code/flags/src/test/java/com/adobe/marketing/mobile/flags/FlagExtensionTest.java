@@ -79,6 +79,14 @@ public class FlagExtensionTest {
     }
 
     @Test
+    public void testGetVersion() {
+        // Asserts the invariant rather than a hardcoded literal so this test doesn't need
+        // updating on every version bump: the reported version must be clean semver with
+        // no leaked "-SNAPSHOT" qualifier, regardless of what moduleVersion currently is.
+        assertTrue(extension.getVersion().matches("\\d+\\.\\d+\\.\\d+"));
+    }
+
+    @Test
     public void testGetFriendlyName() {
         assertEquals("Flags", extension.getFriendlyName());
     }
