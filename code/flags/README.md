@@ -2,7 +2,7 @@
 
 Contributor guide for the Android **Experience Flags** extension (EventHub name `com.adobe.flags`; Gradle namespace `com.adobe.marketing.mobile.flags`).
 
-**Integrators:** setup, Data Collection configuration, public API, and exposure batching behavior are documented in the [repository README](../../README.md). This file covers module internals, build commands, and tests only.
+**Integrators:** setup, Data Collection configuration, public API, and exposure analytics are documented in the [Documentation](../../Documentation/README.md) directory. This file covers module internals, build commands, and tests only.
 
 ---
 
@@ -28,7 +28,7 @@ Contributor guide for the Android **Experience Flags** extension (EventHub name 
 
 `FlagClientManager.queueExposureEvent` enqueues by `aggregationKey`. `FlagEdgeHandler.buildScopeDetails` builds Edge `correlationID` from the stored `FeatureResult` at flush time — it does **not** copy `aggregationKey` for feature groups.
 
-Exposure batching rules (flush triggers, enqueue eligibility) are defined in product terms in the [root README — Exposure batching (Edge)](../../README.md#exposure-batching-edge). Implementation constants:
+Exposure batching rules (flush triggers, enqueue eligibility) are described in [Exposure analytics](../../Documentation/sources/exposure-analytics.md). Implementation constants:
 
 ```kotlin
 // FlagConstants.ExposureQueue
