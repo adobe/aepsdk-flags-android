@@ -163,6 +163,44 @@ val ctx = FeatureEvaluationContext.builder()
 
 ---
 
+## Custom identity
+
+By default, users are split into variants by their ECID. A feature flag can instead split users by a custom identity, such as a CRM ID or loyalty ID, so that a user gets the same variant on every device.
+
+To use a custom identity:
+
+1. When you create the feature flag in Experience Flags, select the identity namespace to split variants by (for example, `userCRMId`).
+2. In your app, add the user's identity under the **same namespace** with the Identity for Edge Network [`updateIdentities`](https://developer.adobe.com/client-sdks/documentation/identity-for-edge-network/api-reference/#updateidentities) API, before you evaluate the flag.
+
+#### Java
+
+```java
+IdentityMap identityMap = new IdentityMap();
+identityMap.addItem(
+        new IdentityItem("1111", AuthenticatedState.AUTHENTICATED, true),
+        "userCRMId"); // must match the namespace selected on the feature flag
+Identity.updateIdentities(identityMap);
+```
+
+#### Kotlin
+
+```kotlin
+val identityMap = IdentityMap()
+identityMap.addItem(
+    IdentityItem("1111", AuthenticatedState.AUTHENTICATED, true),
+    "userCRMId" // must match the namespace selected on the feature flag
+)
+Identity.updateIdentities(identityMap)
+```
+
+`Identity`, `IdentityMap`, `IdentityItem`, and `AuthenticatedState` are in the `com.adobe.marketing.mobile.edge.identity` package.
+
+- The namespace must match exactly, including case.
+- If the namespace has several identities, the one marked as primary is used. Otherwise, the first one is used.
+- If the identity is missing when a flag is evaluated, the user is split by a temporary ID that changes each time the app starts, so the user's variant can change between app launches. Set the identity before you evaluate the flag.
+
+---
+
 ## Handling errors
 
 - Use `AdobeCallbackWithError` and show your default experience in `fail`. A plain `AdobeCallback` isn't called when an error occurs.
@@ -172,4 +210,3 @@ val ctx = FeatureEvaluationContext.builder()
   - the feature key is empty,
   - the Experience Flags configuration is missing, or
   - the extension couldn't download flag definitions at launch (for example, when the device is offline). The extension retries the download on the next configuration update.
-
