@@ -24,7 +24,7 @@ Contributor guide for the Android **Experience Flags** extension (EventHub name 
 | Feature type | `aggregationKey` (queue maps + batch size of 20) | `correlationID` (Edge `scopeDetails`) |
 | ------------ | ------------------------------------------------ | --------------------------------------- |
 | Standalone | `F-{featureId}-{variantId}` | `F-{featureId}-{variantId}` |
-| Feature group | `FG-{releaseId}-{featureId}-{variantId}` | `FG-{releaseId}-{variantId}` |
+| Feature group | `FG-{featureGroupId}-{featureId}-{variantId}` | `FG-{featureGroupId}-{variantId}` |
 
 `FlagClientManager.queueExposureEvent` enqueues by `aggregationKey`. `FlagEdgeHandler.buildScopeDetails` builds Edge `correlationID` from the stored `FeatureResult` at flush time — it does **not** copy `aggregationKey` for feature groups.
 
@@ -85,5 +85,5 @@ Install `code/testapp` with valid Data Collection config (Core, Lifecycle, Edge,
 
 ## Related documentation
 
-- [Repository README](../../README.md) — integration guide for app developers
+- [Documentation](../../Documentation/README.md) — integration guide for app developers
 - [Adobe Mobile SDK dependency management](https://developer.adobe.com/client-sdks/resources/manage-gradle-dependencies/)
