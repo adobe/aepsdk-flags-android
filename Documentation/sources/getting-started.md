@@ -7,14 +7,14 @@
   - Lifecycle
   - Edge Network (with a datastream)
   - Identity for Edge Network
-  - Experience Flags
+  - Adobe Flags
 - Android API 21 (Android 5.0) or later
 - Mobile Core 3.6.0 or later (`sdk-bom` 3.17.0 or later)
 
 ## Configure the Experience Flags extension in Data Collection
 
 1. In Data Collection, select **Tags** and open your mobile property.
-2. Go to **Extensions** > **Catalog**, search for **Experience Flags**, and select **Install**.
+2. Go to **Extensions** > **Catalog**, search for **Adobe Flags**, and select **Install**.
 3. Enter the extension settings and select **Save**:
 
    | Setting | Description |
@@ -90,5 +90,4 @@ In this setup, call `MobileCore.lifecycleStart(null)` in each Activity's `onResu
 
 - [API usage](./api-usage.md)
 - [Exposure analytics](./exposure-analytics.md)
-
 
