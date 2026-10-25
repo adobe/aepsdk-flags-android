@@ -6,6 +6,33 @@
 ## About this project
 The AEPFlags extension for Adobe Experience Platform Mobile SDKs evaluates Experience Flags feature flags in your mobile app. Flag definitions are downloaded once and then evaluated on the device, and feature exposures are measured through Adobe Experience Platform.
 
+## Before you start
+
+### Requirements
+
+- Android API 21 (Android 5.0) or later
+- Mobile Core 3.6.0 or later (`sdk-bom` 3.17.0 or later)
+- A mobile property in [Adobe Experience Platform Data Collection](https://experience.adobe.com/#/data-collection/) with the following extensions installed and configured:
+  - Mobile Core
+  - Lifecycle
+  - Edge Network (with a datastream)
+  - Identity for Edge Network
+  - Adobe Flags
+
+### Install and configure the Adobe Flags extension in Data Collection
+
+1. In Data Collection, select **Tags** and open your mobile property.
+2. Go to **Extensions** > **Catalog**, search for **Adobe Flags**, and select **Install**.
+3. Enter the extension settings and select **Save**:
+
+   | Setting | Description |
+   | ------- | ----------- |
+   | **Sandbox** | The Adobe Experience Platform sandbox that contains your Experience Flags configuration. |
+   | **Application ID** | The identifier of your application in Experience Flags. |
+
+4. [Publish](https://experienceleague.adobe.com/docs/experience-platform/tags/publish/overview.html) the changes.
+5. Under **Environments**, select the install icon for your environment and copy the **Environment File ID**. You use it to initialize the SDK in your app.
+
 ## Installation
 
 Integrate the AEPFlags extension into your app by including the following in your app level gradle file's `dependencies`:
