@@ -126,7 +126,8 @@ public final class Flag {
                         }
 
                         // No feature payload means the feature is not served to this user
-                        // This is a normal outcome and is delivered as a null result rather than an error.
+                        // This is a normal outcome and is delivered as a null result rather than an
+                        // error.
                         final Object featureObj =
                                 responseData != null
                                         ? responseData.get(FlagConstants.EventDataKeys.FEATURE)
