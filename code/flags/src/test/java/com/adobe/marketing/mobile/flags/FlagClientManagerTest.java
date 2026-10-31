@@ -675,6 +675,50 @@ public class FlagClientManagerTest {
     }
 
     @Test
+    public void processRequestEvent_getFeature_controlCohort_responseHasNoFeatureAndNoError()
+            throws FlagClientException {
+        initializeWithClient();
+        final AnalyticsParam analytics = new AnalyticsParam(-1, 173226, "checkout-flag", "0");
+        final FeatureResult feature =
+                new FeatureResult(-1, null, "||features||", null, null, analytics);
+        when(mockFlagClient.getFeature(eq("checkout-flag"), any(GetFeatureRequest.class)))
+                .thenReturn(feature);
+
+        clientManager.processRequestEvent(
+                buildRequestEvent(
+                        FlagConstants.EventDataValues.REQUEST_TYPE_GET_FEATURE, "checkout-flag"));
+
+        final ArgumentCaptor<Event> captor = ArgumentCaptor.forClass(Event.class);
+        verify(mockExtensionApi, times(1)).dispatch(captor.capture());
+        final Map<String, Object> data = captor.getValue().getEventData();
+        assertFalse(data.containsKey(FlagConstants.EventDataKeys.FEATURE));
+        assertFalse(data.containsKey(FlagConstants.EventDataKeys.RESPONSE_ERROR));
+    }
+
+    @Test
+    public void processRequestEvent_getFeature_noMatch_responseHasNoFeatureAndNoError()
+            throws FlagClientException {
+        initializeWithClient();
+        when(mockFlagClient.getFeature(eq("unknown-flag"), any(GetFeatureRequest.class)))
+                .thenReturn(null);
+
+        clientManager.processRequestEvent(
+                buildRequestEvent(
+                        FlagConstants.EventDataValues.REQUEST_TYPE_GET_FEATURE, "unknown-flag"));
+
+        final ArgumentCaptor<Event> captor = ArgumentCaptor.forClass(Event.class);
+        verify(mockExtensionApi, times(1)).dispatch(captor.capture());
+        final Map<String, Object> data = captor.getValue().getEventData();
+        assertFalse(data.containsKey(FlagConstants.EventDataKeys.FEATURE));
+        assertFalse(data.containsKey(FlagConstants.EventDataKeys.RESPONSE_ERROR));
+
+        // Not in an experiment: nothing must be reported to analytics.
+        flushQueuedExposure();
+        verify(mockExtensionApi, never())
+                .dispatch(argThat(FlagClientManagerTest::isPropositionDisplayEdgeEvent));
+    }
+
+    @Test
     public void appStateChange_background_flushesQueuedExposure() throws FlagClientException {
         initializeWithClient();
         final FeatureResult feature =

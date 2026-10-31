@@ -62,10 +62,10 @@ public final class Flag {
      * @param featureKey {@link String} key of the feature to evaluate
      * @param evaluationContext {@link FeatureEvaluationContext} optional targeting attributes
      * @param callback {@link AdobeCallback} invoked with {@link FeatureEvaluationResult} when the
-     *     request succeeds; the value may be {@code null} when no matching feature exists. When an
-     *     {@link AdobeCallbackWithError} is provided, an {@link AdobeError} may be returned on
-     *     validation failure, extension or transport errors, an empty or malformed response, or if
-     *     the default response timeout (10000&nbsp;ms) is reached before a response is received
+     *     feature is served to the user. The value is {@code null} when the feature is not served:
+     *     the key is unknown, targeting criteria are not met, or the user falls in a control
+     *     cohort. This is a normal outcome and not an error; control cohort exposures are still
+     *     reported for analytics.
      */
     public static void getFeature(
             @NonNull final String featureKey,
@@ -116,21 +116,30 @@ public final class Flag {
                     @Override
                     public void call(final Event responseEvent) {
                         final Map<String, Object> responseData = responseEvent.getEventData();
-                        if (responseData == null || responseData.isEmpty()) {
+
+                        // Genuine failures are always reported with an explicit error key.
+                        if (responseData != null
+                                && responseData.containsKey(
+                                        FlagConstants.EventDataKeys.RESPONSE_ERROR)) {
                             failWithError(callback, AdobeError.UNEXPECTED_ERROR);
                             return;
                         }
 
-                        if (responseData.containsKey(FlagConstants.EventDataKeys.RESPONSE_ERROR)) {
-                            failWithError(callback, AdobeError.UNEXPECTED_ERROR);
+                        // No feature payload means the feature is not served to this user
+                        // This is a normal outcome and is delivered as a null result rather than an
+                        // error.
+                        final Object featureObj =
+                                responseData != null
+                                        ? responseData.get(FlagConstants.EventDataKeys.FEATURE)
+                                        : null;
+                        if (featureObj == null) {
+                            callback.call(null);
                             return;
                         }
 
                         try {
                             @SuppressWarnings("unchecked")
-                            final Map<String, Object> feature =
-                                    (Map<String, Object>)
-                                            responseData.get(FlagConstants.EventDataKeys.FEATURE);
+                            final Map<String, Object> feature = (Map<String, Object>) featureObj;
                             callback.call(FlagResponseMapper.toFeatureEvaluationResult(feature));
                         } catch (Exception e) {
                             failWithError(callback, AdobeError.UNEXPECTED_ERROR);
