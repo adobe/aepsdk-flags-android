@@ -383,7 +383,7 @@ Flag.getFeature(
 | ------------------- | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
 | `featureKey`        | `String`                                 | Feature key to evaluate in Experience Flags                                                                                              |
 | `evaluationContext` | `FeatureEvaluationContext`               | Optional targeting attributes via `withAttributes(...)`. Identity is resolved automatically. See [Evaluation context](#evaluation-context). |
-| `callback`          | `AdobeCallback<FeatureEvaluationResult>` | Invoked with the evaluated feature payload; may be `null` when the feature is not found. You can also pass `AdobeCallbackWithError<FeatureEvaluationResult>` to handle `fail(...)`. |
+| `callback`          | `AdobeCallback<FeatureEvaluationResult>` | Invoked with the evaluated feature payload, or with `null` when the feature is not served to the user (unknown key, targeting criteria not met, or the user is in a control cohort). `null` is a normal outcome, not an error; treat it as "feature off". Control cohort exposures are still reported to analytics. You can also pass `AdobeCallbackWithError<FeatureEvaluationResult>` to handle `fail(...)` for genuine failures such as timeouts. |
 
 
 #### Response
