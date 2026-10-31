@@ -65,10 +65,7 @@ public final class Flag {
      *     feature is served to the user. The value is {@code null} when the feature is not served:
      *     the key is unknown, targeting criteria are not met, or the user falls in a control
      *     cohort. This is a normal outcome and not an error; control cohort exposures are still
-     *     reported for analytics. When an {@link AdobeCallbackWithError} is provided, an {@link
-     *     AdobeError} may be returned on validation failure, extension or transport errors, a
-     *     malformed response, or if the default response timeout (10000&nbsp;ms) is reached before
-     *     a response is received
+     *     reported for analytics.
      */
     public static void getFeature(
             @NonNull final String featureKey,
@@ -129,8 +126,7 @@ public final class Flag {
                         }
 
                         // No feature payload means the feature is not served to this user
-                        // (unknown key, criteria not matched, or control cohort). This is a normal
-                        // outcome and is delivered as a null result rather than an error.
+                        // This is a normal outcome and is delivered as a null result rather than an error.
                         final Object featureObj =
                                 responseData != null
                                         ? responseData.get(FlagConstants.EventDataKeys.FEATURE)

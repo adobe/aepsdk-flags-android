@@ -264,10 +264,9 @@ final class FlagClientManager {
 
             final FeatureResult feature = client.getFeature(featureName, request);
 
-            // A feature that is not served to this user (unknown key, criteria mismatch, or
-            // control cohort) is a normal outcome, not an error: the response carries no feature
-            // payload and no error, which the public API surfaces as a null result. Exposure for
-            // control cohorts is still queued below so control-group analytics are reported.
+            // A feature that is not served to this user is a normal outcome.
+            // The response carries no feature payload and no error,
+            // which the public API surfaces as a null result.
             final Map<String, Object> responseData = new HashMap<>();
             if (isEnabledFeatureResult(feature)) {
                 responseData.put(FlagConstants.EventDataKeys.FEATURE, featureResultToMap(feature));
