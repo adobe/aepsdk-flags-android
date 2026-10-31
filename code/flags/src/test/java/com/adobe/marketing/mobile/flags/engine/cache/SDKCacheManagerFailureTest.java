@@ -204,10 +204,23 @@ class SDKCacheManagerFailureTest {
                 cacheManager.getClientCache().getFeatures(CLIENT_ID).findFeature("feature-a"));
         assertNull(cacheManager.getClientCache().getFeatures(CLIENT_ID).findFeature("feature-b"));
 
+        // Wait for the recovered response to be applied to the cache, not just for the request
+        // to reach the server; otherwise the assertions below race the response processing.
         Awaitility.await()
                 .atMost(10, TimeUnit.SECONDS)
                 .pollInterval(100, TimeUnit.MILLISECONDS)
-                .until(() -> mockServer.getRequestCount() >= 3);
+                .until(
+                        () ->
+                                "\"etag-2\""
+                                                .equals(
+                                                        cacheManager
+                                                                .getClientCache()
+                                                                .getFeaturesEtag(CLIENT_ID))
+                                        && cacheManager
+                                                        .getClientCache()
+                                                        .getFeatures(CLIENT_ID)
+                                                        .findFeature("feature-b")
+                                                != null);
 
         assertEquals("\"etag-2\"", cacheManager.getClientCache().getFeaturesEtag(CLIENT_ID));
         assertNotNull(
