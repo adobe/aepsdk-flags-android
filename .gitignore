@@ -76,7 +76,7 @@ code/flags/jacoco.exec
 
 .vscode/
 
-# Editor AI-assistant rule/config directories (internal tooling, not for public distribution)
+# Editor AI-assistant configuration directories
 .cursor/
 
 # IntelliJ Profiler config

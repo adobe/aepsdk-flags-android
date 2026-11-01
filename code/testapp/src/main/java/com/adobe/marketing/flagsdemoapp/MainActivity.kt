@@ -76,7 +76,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.json.JSONObject
 
-/** Defaults for feature evaluation (provisioned STG sandbox attributes). */
+/** Default targeting attributes applied to every evaluation. Add your own as needed. */
 private object FlagsFetchConfig {
     val BASE_ATTRIBUTES: Map<String, List<String>> = mapOf(
     )
@@ -128,14 +128,14 @@ class MainActivity : ComponentActivity() {
         internal const val TAG = "FlagsTestApp"
 
         /**
-         * Provisioned flags keys (STAGE sandbox).
-         * Keep aligned with flags-eval expectations when flags change.
+         * Feature keys shown in the test app. Add the keys of the feature flags configured for
+         * your application.
          */
-        val PROVISION_FEATURE_KEYS: List<String> = listOf(
+        val FEATURE_KEYS: List<String> = listOf(
         )
 
-        val KNOWN_FEATURES: List<FeatureInfo> = PROVISION_FEATURE_KEYS.map { key ->
-            FeatureInfo(key, key, "STG provision")
+        val KNOWN_FEATURES: List<FeatureInfo> = FEATURE_KEYS.map { key ->
+            FeatureInfo(key, key, "Configured feature")
         }
     }
 
@@ -531,8 +531,8 @@ private fun GetFeatureTabScreen(
     onStatusLabelChange: (String) -> Unit,
 ) {
     val fetchCount = remember { AtomicInteger(0) }
-    val featureKeys = MainActivity.PROVISION_FEATURE_KEYS
-    var selectedFeatureKey by remember { mutableStateOf(featureKeys.first()) }
+    val featureKeys = MainActivity.FEATURE_KEYS
+    var selectedFeatureKey by remember { mutableStateOf(featureKeys.firstOrNull() ?: "") }
     var isLoading by remember { mutableStateOf(false) }
     var resultJson by remember { mutableStateOf<String?>(null) }
     var fetchError by remember { mutableStateOf<String?>(null) }
@@ -567,7 +567,11 @@ private fun GetFeatureTabScreen(
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    "${featureKeys.size} provisioned flags — tap one, then Get Feature",
+                    if (featureKeys.isEmpty()) {
+                        "No feature keys configured. Add them to MainActivity.FEATURE_KEYS."
+                    } else {
+                        "${featureKeys.size} feature flags — tap one, then Get Feature"
+                    },
                     fontSize = 12.sp,
                     color = Color.Gray
                 )
@@ -747,7 +751,7 @@ private fun ConnectionStatusRow() {
                     .background(Color(0xFF4CAF50))
             )
             Text(
-                "Flags: connected (STG)",
+                "Flags: connected",
                 fontWeight = FontWeight.Medium,
                 fontSize = 14.sp
             )

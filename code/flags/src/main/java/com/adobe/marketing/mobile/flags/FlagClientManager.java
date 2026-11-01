@@ -264,8 +264,11 @@ final class FlagClientManager {
 
             final FeatureResult feature = client.getFeature(featureName, request);
 
+            // A feature that is not served to this user is a normal outcome.
+            // The response carries no feature payload and no error,
+            // which the public API surfaces as a null result.
             final Map<String, Object> responseData = new HashMap<>();
-            if (feature != null) {
+            if (isEnabledFeatureResult(feature)) {
                 responseData.put(FlagConstants.EventDataKeys.FEATURE, featureResultToMap(feature));
             }
 
